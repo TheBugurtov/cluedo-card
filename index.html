@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cluedo Карточка</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body {
+    background: #f2f2f7;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    padding: 12px;
+  }
+
+  h1 {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-size: 1.4rem;
+    color: #1c1c1e;
+  }
+
+  .refresh-btn {
+    font-size: 0.8em;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    padding: 5px 12px;
+  }
+
+  .card {
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background: #ffffff;
+  }
+
+  .card-header {
+    background: #e2e3e5;
+    border-bottom: none;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 8px 0;
+  }
+
+.list-group-item {
+  border: none;
+  padding: 6px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 24px;
+  margin-bottom: 4px;
+  margin-top: 4px;
+  background: transparent; /* убираем фон */
+  cursor: pointer;
+  transition: none; /* убираем анимацию ховера */
+}
+
+.list-group-item:hover {
+  background: transparent; /* убираем эффект ховера */
+}
+
+  .state {
+    width: 24px;
+    text-align: center;
+    font-weight: 400;
+    font-size: 1.1em;
+  }
+
+  .state.empty { color: #d1d1d6; }
+  .state.check { color: #34c759; }
+  .state.cross { color: #ff3b30; }
+
+  @media (max-width: 600px) {
+    .col-md-4 { flex: 0 0 100%; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Cluedo</h1>
+<div class="text-center mb-2">
+  <button class="btn btn-light refresh-btn" onclick="resetAll()">Сбросить</button>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">Подозреваемые</div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item" onclick="toggleState(this)">Грин <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Мастард <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Пикок <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Плам <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Скарлет <span class="state empty">-</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">Оружие</div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item" onclick="toggleState(this)">Подсвечник <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Кинжал <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Револьвер <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Верёвка <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Гаечный ключ <span class="state empty">-</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">Комнаты</div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item" onclick="toggleState(this)">Бальный зал <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Бильярдная <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Зимний сад <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Столовая <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Ванная <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Кухня <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Гостинная <span class="state empty">-</span></li>
+          <li class="list-group-item" onclick="toggleState(this)">Кабинет <span class="state empty">-</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Состояния: сначала крестик, потом галочка, потом пусто
+  const states = [
+    {symbol: "✖", className: "cross"},
+    {symbol: "✔", className: "check"},
+    {symbol: "-", className: "empty"}
+  ];
+
+  function toggleState(el) {
+    const stateEl = el.querySelector('.state');
+    let idx = states.findIndex(s => s.symbol === stateEl.textContent);
+    idx = (idx + 1) % states.length;
+    stateEl.textContent = states[idx].symbol;
+    stateEl.className = 'state ' + states[idx].className;
+
+    checkThreeChecks();
+  }
+
+  function resetAll() {
+    document.querySelectorAll('.state').forEach(el => {
+      el.textContent = "-";
+      el.className = "state empty";
+    });
+  }
+
+  function checkThreeChecks() {
+    const cols = document.querySelectorAll('.col-md-4');
+    let allChecked = true;
+
+    cols.forEach(col => {
+      const hasCheck = col.querySelector('.state.check');
+      if (!hasCheck) allChecked = false;
+    });
+
+    if (allChecked) triggerConfetti();
+  }
+
+  // Конфетти-анимация
+  function triggerConfetti() {
+    const confettiCount = 100;
+    const colors = ["#ff3b30", "#ff9500", "#ffcc00", "#34c759", "#0a84ff", "#bf5af2"];
+
+    for (let i = 0; i < confettiCount; i++) {
+      const confetti = document.createElement('div');
+      confetti.style.position = 'fixed';
+      confetti.style.width = '8px';
+      confetti.style.height = '8px';
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.top = '-10px';
+      confetti.style.left = Math.random() * window.innerWidth + 'px';
+      confetti.style.opacity = Math.random();
+      confetti.style.borderRadius = '50%';
+      confetti.style.pointerEvents = 'none';
+      confetti.style.zIndex = '9999';
+      document.body.appendChild(confetti);
+
+      // Анимация падения
+      const fallDuration = 2000 + Math.random() * 1000;
+      confetti.animate([
+        { transform: `translateY(0px) rotate(0deg)` },
+        { transform: `translateY(${window.innerHeight + 50}px) rotate(${Math.random() * 720}deg)` }
+      ], {
+        duration: fallDuration,
+        easing: 'ease-out',
+        iterations: 1
+      });
+
+      // Удаляем после окончания анимации
+      setTimeout(() => confetti.remove(), fallDuration);
+    }
+  }
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
